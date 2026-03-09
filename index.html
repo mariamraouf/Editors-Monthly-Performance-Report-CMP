@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create More Productions â Editor Performance</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#FF212B;--red-dark:#C41820;--black:#000000;--dark:#0A0A0A;--dark-card:#141414;--dark-card-hover:#1A1A1A;--dark-gray:#2F2B36;--white:#FFFFFF;--gray-100:#F5F5F5;--gray-300:#B0B0B0;--gray-500:#6B6B6B;--gray-700:#333333;--accent-green:#00C853;--accent-amber:#FFB300;--accent-blue:#448AFF;--sidebar-w:260px;--font:'Inter',sans-serif}
+body{font-family:var(--font);background:var(--dark);color:var(--white);display:flex;min-height:100vh;overflow-x:hidden}
+
+/* ââ Sidebar ââ */
+.sidebar{width:var(--sidebar-w);background:var(--black);border-right:1px solid #1a1a1a;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:12px}
+.sidebar-logo .logo-mark{width:40px;height:40px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;letter-spacing:-0.5px}
+.sidebar-logo .logo-text{font-size:14px;font-weight:700;letter-spacing:0.5px;line-height:1.3}
+.sidebar-logo .logo-text span{display:block;color:var(--gray-300);font-size:11px;font-weight:400;letter-spacing:0.3px;margin-top:2px}
+.sidebar-section{padding:20px 16px 8px;font-size:10px;font-weight:600;letter-spacing:1.5px;color:var(--gray-500);text-transform:uppercase}
+.sidebar-nav{flex:1;overflow-y:auto;padding:0 8px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 16px;margin:2px 0;border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:500;color:var(--gray-300);position:relative}
+.nav-item:hover{background:#1a1a1a;color:var(--white)}
+.nav-item.active{background:linear-gradient(135deg,var(--red),var(--red-dark));color:var(--white);font-weight:600;box-shadow:0 4px 20px rgba(255,33,43,0.3)}
+.nav-item .nav-icon{width:20px;text-align:center;font-size:15px}
+.nav-item .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px}
+.sidebar-footer{padding:16px 20px;border-top:1px solid #1a1a1a;font-size:11px;color:var(--gray-500);text-align:center}
+
+/* ââ Main Content ââ */
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh}
+.page{display:none;padding:32px 40px 60px;animation:fadeIn .4s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ââ Header ââ */
+.page-header{margin-bottom:32px}
+.page-header h1{font-size:28px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px}
+.page-header p{color:var(--gray-300);font-size:14px}
+.header-row{display:flex;align-items:flex-end;justify-content:space-between}
+.header-row .period-badge{background:var(--dark-card);border:1px solid #2a2a2a;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;color:var(--gray-300)}
+
+/* ââ KPI Row ââ */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.kpi-card{background:var(--dark-card);border:1px solid #1e1e1e;border-radius:14px;padding:22px 24px;position:relative;overflow:hidden;transition:all .3s}
+.kpi-card:hover{border-color:#333;transform:translateY(-2px)}
+.kpi-card .kpi-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card .kpi-label{font-size:11px;font-weight:600;letter-spacing:1px;color:var(--gray-500);text-transform:uppercase;margin-bottom:10px}
+.kpi-card .kpi-value{font-size:32px;font-weight:800;letter-spacing:-1px}
+.kpi-card .kpi-sub{font-size:12px;color:var(--gray-300);margin-top:4px}
+.kpi-accent.red{background:var(--red)}.kpi-accent.green{background:var(--accent-green)}.kpi-accent.amber{background:var(--accent-amber)}.kpi-accent.blue{background:var(--accent-blue)}
+
+/* ââ Cards / Sections ââ */
+.section-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-title .num{background:var(--red);width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.card{background:var(--dark-card);border:1px solid #1e1e1e;border-radius:14px;padding:24px;margin-bottom:24px;transition:border-color .3s}
+.card:hover{border-color:#2a2a2a}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+
+/* ââ Editor Cards ââ */
+.editor-card{background:var(--dark-card);border:1px solid #1e1e1e;border-radius:14px;padding:0;overflow:hidden;transition:all .3s}
+.editor-card:hover{border-color:var(--red);box-shadow:0 8px 32px rgba(255,33,43,0.1)}
+.editor-header{background:linear-gradient(135deg,#1a1a1a,#0f0f0f);padding:20px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid #1e1e1e}
+.editor-avatar{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
+.editor-avatar.k{background:linear-gradient(135deg,#00C853,#009624)}
+.editor-avatar.n{background:linear-gradient(135deg,#448AFF,#2962FF)}
+.editor-avatar.s{background:linear-gradient(135deg,#FF212B,#C41820)}
+.editor-info h3{font-size:16px;font-weight:700}
+.editor-info span{font-size:12px;color:var(--gray-300)}
+.editor-score{margin-left:auto;text-align:right}
+.editor-score .score-val{font-size:28px;font-weight:900;letter-spacing:-1px}
+.editor-score .tier{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;display:inline-block;margin-top:2px}
+.tier-a{background:rgba(0,200,83,0.15);color:#00C853}
+.tier-b{background:rgba(68,138,255,0.15);color:#448AFF}
+.tier-c{background:rgba(255,179,0,0.15);color:#FFB300}
+.tier-d{background:rgba(255,33,43,0.15);color:#FF212B}
+.editor-body{padding:20px 24px}
+.metric-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #111}
+.metric-row:last-child{border-bottom:none}
+.metric-label{font-size:12px;color:var(--gray-300);font-weight:500}
+.metric-bar-wrap{width:120px;height:6px;background:#1e1e1e;border-radius:3px;overflow:hidden;margin:0 12px}
+.metric-bar{height:100%;border-radius:3px;transition:width .8s ease}
+.metric-val{font-size:13px;font-weight:700;min-width:32px;text-align:right}
+
+/* ââ Rankings Table ââ */
+.rank-table{width:100%;border-collapse:separate;border-spacing:0}
+.rank-table th{text-align:left;font-size:11px;font-weight:600;letter-spacing:1px;color:var(--gray-500);text-transform:uppercase;padding:10px 16px;border-bottom:1px solid #1e1e1e}
+.rank-table td{padding:14px 16px;font-size:13px;border-bottom:1px solid #111}
+.rank-table tr:hover td{background:#111}
+.rank-num{font-size:18px;font-weight:900;color:var(--red)}
+
+/* ââ Charts ââ */
+.chart-wrap{position:relative;height:260px}
+.chart-wrap canvas{max-height:260px}
+
+/* ââ Insights ââ */
+.insight-box{background:linear-gradient(135deg,rgba(255,33,43,0.08),rgba(255,33,43,0.02));border:1px solid rgba(255,33,43,0.2);border-radius:12px;padding:16px 20px;margin-top:12px}
+.insight-box h4{font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.insight-box p{font-size:13px;color:var(--gray-300);line-height:1.6}
+
+/* ââ Year Overview Specific ââ */
+.year-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.year-month-card{background:var(--dark-card);border:1px solid #1e1e1e;border-radius:12px;padding:16px;cursor:pointer;transition:all .3s;text-align:center}
+.year-month-card:hover{border-color:var(--red);transform:translateY(-2px)}
+.year-month-card.available{border-color:#2a2a2a}
+.year-month-card.available:hover{border-color:var(--red)}
+.year-month-card.empty{opacity:0.4;cursor:default}
+.year-month-card .month-name{font-size:13px;font-weight:600;margin-bottom:6px}
+.year-month-card .month-score{font-size:24px;font-weight:800}
+
+/* ââ Responsive ââ */
+@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{width:60px}.sidebar .logo-text,.sidebar .sidebar-section,.sidebar .nav-item span:not(.nav-icon){display:none}.main{margin-left:60px}.kpi-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- âââ SIDEBAR âââ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">CM</div>
+    <div class="logo-text">CREATE MORE<span>Editor Performance</span></div>
+  </div>
+
+  <div class="sidebar-section">Overview</div>
+  <div class="sidebar-nav">
+    <div class="nav-item active" onclick="showPage('year-overview')">
+      <span class="nav-icon">ð</span>
+      <span>Year Overview</span>
+      <span class="nav-badge">2026</span>
+    </div>
+
+    <div class="sidebar-section">Monthly Reports</div>
+
+    <div class="nav-item" onclick="showPage('feb-2026')">
+      <span class="nav-icon">ð</span>
+      <span>February 2026</span>
+    </div>
+    <div class="nav-item disabled" style="opacity:0.35;cursor:default">
+      <span class="nav-icon">ð</span>
+      <span>March 2026</span>
+    </div>
+    <div class="nav-item disabled" style="opacity:0.35;cursor:default">
+      <span class="nav-icon">ð</span>
+      <span>April 2026</span>
+    </div>
+    <div class="nav-item disabled" style="opacity:0.35;cursor:default">
+      <span class="nav-icon">ð</span>
+      <span>May 2026</span>
+    </div>
+    <div class="nav-item disabled" style="opacity:0.35;cursor:default">
+      <span class="nav-icon">ð</span>
+      <span>June 2026</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    Auto-generated monthly Â· Powered by Claude
+  </div>
+</nav>
+
+<!-- âââ MAIN CONTENT âââ -->
+<div class="main">
+
+<!-- ââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- PAGE: YEAR OVERVIEW                            -->
+<!-- ââââââââââââââââââââââââââââââââââââââââââââââ -->
+<div class="page active" id="page-year-overview">
+  <div class="page-header">
+    <div class="header-row">
+      <div>
+        <h1>2026 Year Overview</h1>
+        <p>Cumulative editor performance across all monthly reports</p>
+      </div>
+      <div class="period-badge">Jan 2026 â Dec 2026</div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-accent red"></div>
+      <div class="kpi-label">Reports Generated</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">of 12 months</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent green"></div>
+      <div class="kpi-label">Avg Team Score</div>
+      <div class="kpi-value">78.6</div>
+      <div class="kpi-sub">Tier B â Good</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent amber"></div>
+      <div class="kpi-label">Top Performer</div>
+      <div class="kpi-value" style="font-size:22px">Karim C.</div>
+      <div class="kpi-sub">Score: 88.5 Â· Tier A</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent blue"></div>
+      <div class="kpi-label">Reels Delivered</div>
+      <div class="kpi-value">60</div>
+      <div class="kpi-sub">20 per editor Â· Feb batch</div>
+    </div>
+  </div>
+
+  <!-- Monthly Calendar -->
+  <div class="section-title"><span class="num">1</span> Monthly Breakdown</div>
+  <div class="card">
+    <div class="year-summary-grid">
+      <div class="year-month-card empty"><div class="month-name">January</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card available" onclick="showPage('feb-2026')"><div class="month-name" style="color:var(--red)">February</div><div class="month-score">78.6</div></div>
+      <div class="year-month-card empty"><div class="month-name">March</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">April</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">May</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">June</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">July</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">August</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">September</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">October</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">November</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+      <div class="year-month-card empty"><div class="month-name">December</div><div class="month-score" style="color:var(--gray-500)">â</div></div>
+    </div>
+  </div>
+
+  <!-- YTD Trend Chart -->
+  <div class="section-title"><span class="num">2</span> Year-to-Date Score Trend</div>
+  <div class="card">
+    <div class="chart-wrap"><canvas id="ytdTrendChart"></canvas></div>
+    <div class="insight-box">
+      <h4>Year Summary</h4>
+      <p>Only February data is available so far. As new monthly reports are generated on the 1st of each month, this chart will show score trends across the full year for each editor. Watch for patterns in consistency and improvement.</p>
+    </div>
+  </div>
+
+  <!-- YTD Editor Rankings -->
+  <div class="section-title"><span class="num">3</span> Year-to-Date Rankings</div>
+  <div class="card">
+    <table class="rank-table">
+      <thead><tr><th>#</th><th>Editor</th><th>Avg Score</th><th>Tier</th><th>On-Time %</th><th>Revision Rate</th><th>Reports</th></tr></thead>
+      <tbody>
+        <tr><td><span class="rank-num">1</span></td><td><strong>Karim Chennoufi</strong></td><td style="font-weight:800">88.5</td><td><span class="tier tier-a">A</span></td><td>95%</td><td>0.8</td><td>1</td></tr>
+        <tr><td><span class="rank-num">2</span></td><td><strong>Nesreen Abazid</strong></td><td style="font-weight:800">76.2</td><td><span class="tier tier-b">B</span></td><td>85%</td><td>1.4</td><td>1</td></tr>
+        <tr><td><span class="rank-num">3</span></td><td><strong>Shota Sprunger</strong></td><td style="font-weight:800">71.0</td><td><span class="tier tier-c">C</span></td><td>70%</td><td>2.1</td><td>1</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ââââââââââââââââââââââââââââââââââââââââââââââ -->
+<!-- PAGE: FEBRUARY 2026                            -->
+<!-- ââââââââââââââââââââââââââââââââââââââââââââââ -->
+<div class="page" id="page-feb-2026">
+  <div class="page-header">
+    <div class="header-row">
+      <div>
+        <h1>February 2026 Report</h1>
+        <p>Editor performance scorecard â all client projects</p>
+      </div>
+      <div class="period-badge">Feb 1 â Feb 28, 2026</div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-accent red"></div>
+      <div class="kpi-label">Team Avg Score</div>
+      <div class="kpi-value">78.6</div>
+      <div class="kpi-sub">Tier B â Good</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent green"></div>
+      <div class="kpi-label">On-Time Delivery</div>
+      <div class="kpi-value">83%</div>
+      <div class="kpi-sub">50 of 60 reels on time</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent amber"></div>
+      <div class="kpi-label">Avg Revisions</div>
+      <div class="kpi-value">1.4</div>
+      <div class="kpi-sub">per reel across team</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-accent blue"></div>
+      <div class="kpi-label">Avg Turnaround</div>
+      <div class="kpi-value">5.8h</div>
+      <div class="kpi-sub">editing + revision time</div>
+    </div>
+  </div>
+
+  <!-- Composite Score Chart -->
+  <div class="section-title"><span class="num">1</span> Composite Scores</div>
+  <div class="card">
+    <div class="grid-2">
+      <div class="chart-wrap"><canvas id="compositeChart"></canvas></div>
+      <div>
+        <p style="font-size:13px;color:var(--gray-300);line-height:1.7;margin-bottom:16px"><strong style="color:#fff">Scoring Formula</strong><br>On-Time Delivery 30% Â· Revision Rate 25% Â· Output Volume 20% Â· Responsiveness 15% Â· Client Satisfaction 10%</p>
+        <p style="font-size:13px;color:var(--gray-300);line-height:1.7"><strong style="color:#fff">Tier Thresholds</strong><br>A: 90â100 Â· B: 75â89 Â· C: 60â74 Â· D: Below 60</p>
+        <div class="insight-box" style="margin-top:20px">
+          <h4>Key Takeaway</h4>
+          <p>Karim leads with a strong A-tier score of 88.5, driven by excellent on-time rates and low revisions. Nesreen is solid at B-tier. Shota has room for improvement, particularly in delivery speed and revision reduction.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestone On-Time Chart -->
+  <div class="section-title"><span class="num">2</span> Milestone On-Time Rate</div>
+  <div class="card">
+    <div class="chart-wrap"><canvas id="milestoneChart"></canvas></div>
+    <div class="insight-box">
+      <h4>Delivery Windows</h4>
+      <p>Reel 1 must be delivered within 48 hours of footage receipt. Reels 2â7 within 7 days. Reels 8â20 within 14 days. Karim consistently meets all three milestones. Nesreen and Shota show drop-off on later reels.</p>
+    </div>
+  </div>
+
+  <!-- Grid: Revision Reasons + Time Breakdown -->
+  <div class="grid-2">
+    <div>
+      <div class="section-title"><span class="num">3</span> Revision Reasons</div>
+      <div class="card">
+        <div class="chart-wrap" style="height:220px"><canvas id="revisionChart"></canvas></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title"><span class="num">4</span> Time Per Reel</div>
+      <div class="card">
+        <div class="chart-wrap" style="height:220px"><canvas id="timeChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Individual Editor Scorecards -->
+  <div class="section-title" style="margin-top:12px"><span class="num">5</span> Individual Scorecards</div>
+  <div class="grid-3">
+    <!-- Karim -->
+    <div class="editor-card">
+      <div class="editor-header">
+        <div class="editor-avatar k">KC</div>
+        <div class="editor-info"><h3>Karim Chennoufi</h3><span>Senior Editor</span></div>
+        <div class="editor-score"><div class="score-val">88.5</div><span class="tier tier-a">Tier A</span></div>
+      </div>
+      <div class="editor-body">
+        <div class="metric-row"><span class="metric-label">On-Time (30%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:95%;background:var(--accent-green)"></div></div><span class="metric-val">95%</span></div>
+        <div class="metric-row"><span class="metric-label">Revision Rate (25%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:84%;background:var(--accent-blue)"></div></div><span class="metric-val">0.8</span></div>
+        <div class="metric-row"><span class="metric-label">Volume (20%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:100%;background:var(--red)"></div></div><span class="metric-val">20</span></div>
+        <div class="metric-row"><span class="metric-label">Response (15%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:88%;background:var(--accent-amber)"></div></div><span class="metric-val">2.1h</span></div>
+        <div class="metric-row"><span class="metric-label">Client Score (10%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:90%;background:var(--accent-green)"></div></div><span class="metric-val">9.0</span></div>
+        <div class="insight-box"><h4>Summary</h4><p>Top performer this month. Consistently fast turnaround and minimal revisions. Only 1 brief mismatch out of 20 reels.</p></div>
+      </div>
+    </div>
+    <!-- Nesreen -->
+    <div class="editor-card">
+      <div class="editor-header">
+        <div class="editor-avatar n">NA</div>
+        <div class="editor-info"><h3>Nesreen Abazid</h3><span>Editor</span></div>
+        <div class="editor-score"><div class="score-val">76.2</div><span class="tier tier-b">Tier B</span></div>
+      </div>
+      <div class="editor-body">
+        <div class="metric-row"><span class="metric-label">On-Time (30%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:85%;background:var(--accent-green)"></div></div><span class="metric-val">85%</span></div>
+        <div class="metric-row"><span class="metric-label">Revision Rate (25%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:65%;background:var(--accent-blue)"></div></div><span class="metric-val">1.4</span></div>
+        <div class="metric-row"><span class="metric-label">Volume (20%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:100%;background:var(--red)"></div></div><span class="metric-val">20</span></div>
+        <div class="metric-row"><span class="metric-label">Response (15%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:65%;background:var(--accent-amber)"></div></div><span class="metric-val">4.2h</span></div>
+        <div class="metric-row"><span class="metric-label">Client Score (10%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:78%;background:var(--accent-amber)"></div></div><span class="metric-val">7.8</span></div>
+        <div class="insight-box"><h4>Summary</h4><p>Solid B-tier performance. Revision rate and response time are areas for improvement. Strong volume delivery with consistent quality.</p></div>
+      </div>
+    </div>
+    <!-- Shota -->
+    <div class="editor-card">
+      <div class="editor-header">
+        <div class="editor-avatar s">SS</div>
+        <div class="editor-info"><h3>Shota Sprunger</h3><span>Editor</span></div>
+        <div class="editor-score"><div class="score-val">71.0</div><span class="tier tier-c">Tier C</span></div>
+      </div>
+      <div class="editor-body">
+        <div class="metric-row"><span class="metric-label">On-Time (30%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:70%;background:var(--accent-amber)"></div></div><span class="metric-val">70%</span></div>
+        <div class="metric-row"><span class="metric-label">Revision Rate (25%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:48%;background:var(--red)"></div></div><span class="metric-val">2.1</span></div>
+        <div class="metric-row"><span class="metric-label">Volume (20%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:100%;background:var(--red)"></div></div><span class="metric-val">20</span></div>
+        <div class="metric-row"><span class="metric-label">Response (15%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:45%;background:var(--red)"></div></div><span class="metric-val">7.4h</span></div>
+        <div class="metric-row"><span class="metric-label">Client Score (10%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:68%;background:var(--accent-amber)"></div></div><span class="metric-val">6.8</span></div>
+        <div class="insight-box"><h4>Summary</h4><p>Needs improvement in turnaround time and revision count. High idle time (11.9h avg) suggests workflow bottlenecks. Recommended: pair mentoring with Karim.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rankings -->
+  <div class="section-title" style="margin-top:12px"><span class="num">6</span> February Rankings</div>
+  <div class="card">
+    <table class="rank-table">
+      <thead><tr><th>#</th><th>Editor</th><th>Score</th><th>Tier</th><th>On-Time</th><th>Revisions</th><th>Avg Turnaround</th><th>Client Score</th></tr></thead>
+      <tbody>
+        <tr><td><span class="rank-num">1</span></td><td><strong>Karim Chennoufi</strong></td><td style="font-weight:800">88.5</td><td><span class="tier tier-a">A</span></td><td>95%</td><td>0.8</td><td>5.0h</td><td>9.0</td></tr>
+        <tr><td><span class="rank-num">2</span></td><td><strong>Nesreen Abazid</strong></td><td style="font-weight:800">76.2</td><td><span class="tier tier-b">B</span></td><td>85%</td><td>1.4</td><td>10.0h</td><td>7.8</td></tr>
+        <tr><td><span class="rank-num">3</span></td><td><strong>Shota Sprunger</strong></td><td style="font-weight:800">71.0</td><td><span class="tier tier-c">C</span></td><td>70%</td><td>2.1</td><td>15.5h</td><td>6.8</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="text-align:center;padding:24px 0;color:var(--gray-500);font-size:12px">
+    Sample data Â· Auto-generated on March 8, 2026 Â· Create More Productions Â© 2026
+  </div>
+</div>
+
+</div><!-- end .main -->
+
+<script>
+// ââ Navigation ââ
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  // Highlight nav
+  const navItems = document.querySelectorAll('.nav-item');
+  navItems.forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(id)) n.classList.add('active');
+  });
+  // Re-render charts if needed
+  setTimeout(initCharts, 100);
+}
+
+// ââ Charts ââ
+const chartInstances = {};
+function initCharts() {
+  const defaults = Chart.defaults;
+  defaults.color = '#94a3b8';
+  defaults.font.family = 'Inter';
+  defaults.plugins.legend.labels.padding = 16;
+
+  // Composite Scores (Horizontal Bar)
+  const ctx1 = document.getElementById('compositeChart');
+  if (ctx1 && ctx1.offsetParent !== null) {
+    if (chartInstances.composite) chartInstances.composite.destroy();
+    chartInstances.composite = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: ['Karim Chennoufi', 'Nesreen Abazid', 'Shota Sprunger'],
+        datasets: [{
+          data: [88.5, 76.2, 71.0],
+          backgroundColor: ['rgba(255,33,43,0.85)', 'rgba(255,33,43,0.55)', 'rgba(255,33,43,0.35)'],
+          borderRadius: 8, barPercentage: 0.6,
+        }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { max: 100, grid: { color: '#1e1e1e' }, ticks: { callback: v => v + '%' } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Milestone On-Time
+  const ctx2 = document.getElementById('milestoneChart');
+  if (ctx2 && ctx2.offsetParent !== null) {
+    if (chartInstances.milestone) chartInstances.milestone.destroy();
+    chartInstances.milestone = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: ['Reel 1 (48hr)', 'Reels 2-7 (7d)', 'Reels 8-20 (14d)'],
+        datasets: [
+          { label: 'Karim', data: [100, 92, 85], backgroundColor: 'rgba(0,200,83,0.7)', borderRadius: 6, barPercentage: 0.7 },
+          { label: 'Nesreen', data: [100, 80, 72], backgroundColor: 'rgba(68,138,255,0.7)', borderRadius: 6, barPercentage: 0.7 },
+          { label: 'Shota', data: [50, 67, 60], backgroundColor: 'rgba(255,33,43,0.7)', borderRadius: 6, barPercentage: 0.7 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true, max: 100, grid: { color: '#1e1e1e' }, ticks: { callback: v => v + '%' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Revision Reasons Doughnut
+  const ctx3 = document.getElementById('revisionChart');
+  if (ctx3 && ctx3.offsetParent !== null) {
+    if (chartInstances.revision) chartInstances.revision.destroy();
+    chartInstances.revision = new Chart(ctx3, {
+      type: 'doughnut',
+      data: {
+        labels: ['Brief Mismatch', 'Pacing', 'Audio', 'Color'],
+        datasets: [{ data: [7, 7, 3, 2], backgroundColor: ['rgba(255,33,43,0.8)', 'rgba(255,179,0,0.8)', 'rgba(68,138,255,0.8)', 'rgba(139,92,246,0.8)'], borderColor: '#141414', borderWidth: 3 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '65%',
+        plugins: { legend: { position: 'right', labels: { padding: 16, font: { size: 12 } } } }
+      }
+    });
+  }
+
+  // Time Per Reel (Stacked Bar)
+  const ctx4 = document.getElementById('timeChart');
+  if (ctx4 && ctx4.offsetParent !== null) {
+    if (chartInstances.time) chartInstances.time.destroy();
+    chartInstances.time = new Chart(ctx4, {
+      type: 'bar',
+      data: {
+        labels: ['Karim', 'Nesreen', 'Shota'],
+        datasets: [
+          { label: 'Editing', data: [3.2, 5.8, 7.4], backgroundColor: 'rgba(68,138,255,0.7)', borderRadius: 6 },
+          { label: 'Revision Fix', data: [1.8, 4.2, 8.1], backgroundColor: 'rgba(255,179,0,0.7)', borderRadius: 6 },
+          { label: 'Idle', data: [1.2, 3.3, 11.9], backgroundColor: 'rgba(255,33,43,0.3)', borderRadius: 6 },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          y: { stacked: true, grid: { color: '#1e1e1e' }, ticks: { callback: v => v + 'h' } },
+          x: { stacked: true, grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // YTD Trend (Line â on year overview)
+  const ctx5 = document.getElementById('ytdTrendChart');
+  if (ctx5 && ctx5.offsetParent !== null) {
+    if (chartInstances.ytd) chartInstances.ytd.destroy();
+    chartInstances.ytd = new Chart(ctx5, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+          { label: 'Karim', data: [null, 88.5, null,null,null,null,null,null,null,null,null,null], borderColor: '#00C853', backgroundColor: 'rgba(0,200,83,0.1)', tension: 0.3, pointRadius: 6, pointBackgroundColor: '#00C853', spanGaps: false },
+          { label: 'Nesreen', data: [null, 76.2, null,null,null,null,null,null,null,null,null,null], borderColor: '#448AFF', backgroundColor: 'rgba(68,138,255,0.1)', tension: 0.3, pointRadius: 6, pointBackgroundColor: '#448AFF', spanGaps: false },
+          { label: 'Shota', data: [null, 71.0, null,null,null,null,null,null,null,null,null,null], borderColor: '#FF212B', backgroundColor: 'rgba(255,33,43,0.1)', tension: 0.3, pointRadius: 6, pointBackgroundColor: '#FF212B', spanGaps: false },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: {
+          y: { min: 50, max: 100, grid: { color: '#1e1e1e' }, ticks: { callback: v => v + '%' } },
+          x: { grid: { color: '#111' } }
+        },
+        plugins: { legend: { labels: { usePointStyle: true } } }
+      }
+    });
+  }
+}
+
+// Init on load
+window.addEventListener('load', () => setTimeout(initCharts, 200));
+</script>
+</body>
+</html>
