@@ -8,577 +8,640 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--red:#FF212B;--red-dark:#C41820;--red-light:#FF4D55;--black:#000000;--white:#FFFFFF;--off-white:#FAFAFA;--gray-50:#F7F7F7;--gray-100:#EFEFEF;--gray-200:#E0E0E0;--gray-300:#B0B0B0;--gray-500:#6B6B6B;--gray-700:#333333;--dark:#0A0A0A;--dark-card:#111111;--accent-green:#00C853;--accent-amber:#FFB300;--accent-blue:#448AFF;--sidebar-w:270px;--font:'Inter',sans-serif;--radius:12px;--radius-lg:16px;--radius-pill:50px}
-body{font-family:var(--font);background:var(--white);color:var(--black);display:flex;min-height:100vh;overflow-x:hidden}
-
-/* ââ Sidebar ââ */
-.sidebar{width:var(--sidebar-w);background:var(--white);border-right:1px solid var(--gray-200);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
-.sidebar-logo{padding:28px 24px 24px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:14px}
-.sidebar-logo svg{width:44px;height:44px;flex-shrink:0}
-.sidebar-logo .logo-text{font-size:15px;font-weight:800;letter-spacing:1.5px;line-height:1.2;color:var(--black)}
-.sidebar-logo .logo-text span{display:block;color:var(--red);font-size:10px;font-weight:700;letter-spacing:2px;margin-top:3px}
-.sidebar-section{padding:24px 24px 10px;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--gray-500);text-transform:uppercase}
-.sidebar-nav{flex:1;overflow-y:auto;padding:0 12px}
-.nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;margin:3px 0;border-radius:var(--radius);cursor:pointer;transition:all .25s;font-size:13px;font-weight:500;color:var(--gray-500);position:relative}
-.nav-item:hover{background:var(--gray-50);color:var(--black)}
-.nav-item.active{background:var(--black);color:var(--white);font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
-.nav-item .nav-icon{width:20px;text-align:center;font-size:14px}
-.nav-item .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:var(--radius-pill)}
-.nav-item.disabled{opacity:0.3;cursor:default}
-.nav-item.disabled:hover{background:transparent;color:var(--gray-500)}
-.sidebar-footer{padding:18px 24px;border-top:1px solid var(--gray-200);font-size:11px;color:var(--gray-300);text-align:center}
-
-/* ââ Main Content ââ */
-.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;background:var(--off-white)}
-.page{display:none;animation:fadeIn .4s ease}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Editor Performance Scorecard &mdash; Create More Productions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--red:#FF212B;--black:#000000;--white:#FFFFFF;--off-white:#FAFAFA;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;--gray-900:#111827;--sidebar-w:270px;--radius:12px;--radius-lg:16px;--radius-pill:50px;--shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);--shadow-md:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06);--shadow-lg:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05);--shadow-xl:0 20px 25px -5px rgba(0,0,0,.1),0 10px 10px -5px rgba(0,0,0,.04)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--off-white);color:var(--gray-800);line-height:1.6;overflow-x:hidden}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);background:var(--black);color:var(--white);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sidebar-header{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo{font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--white);text-transform:uppercase;line-height:1.2}
+.sidebar-logo span{color:var(--red)}
+.sidebar-subtitle{font-size:11px;font-weight:500;color:var(--gray-400);text-transform:uppercase;letter-spacing:.1em;margin-top:6px}
+.sidebar-nav{flex:1;padding:16px 12px}
+.nav-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--gray-500);padding:12px 12px 8px;margin-top:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius);color:var(--gray-400);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;text-decoration:none;margin-bottom:2px}
+.nav-item:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.nav-item.active{background:var(--red);color:var(--white);font-weight:600}
+.nav-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sidebar-footer{padding:16px 24px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:var(--gray-500)}
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh}
+.page{display:none;padding:32px 40px 60px}
 .page.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* ââ Hero Header ââ */
-.page-hero{background:linear-gradient(135deg,#1a0000 0%,#3d0a0c 25%,#8b1a1a 50%,#FF212B 75%,#ff6b4a 100%);padding:48px 48px 44px;position:relative;overflow:hidden}
-.page-hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 30% 50%,rgba(255,33,43,0.3),transparent 70%);pointer-events:none}
-.page-hero h1{font-size:36px;font-weight:300;letter-spacing:-0.5px;color:var(--white);position:relative;z-index:1}
-.page-hero h1 strong{font-weight:800}
-.page-hero p{color:rgba(255,255,255,0.7);font-size:14px;margin-top:6px;position:relative;z-index:1}
-.page-hero .period-badge{display:inline-block;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);padding:8px 20px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;color:var(--white);margin-top:16px;position:relative;z-index:1}
-
-/* ââ Content Area ââ */
-.page-content{padding:32px 40px 60px}
-
-/* ââ KPI Row ââ */
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px}
-.kpi-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:24px;position:relative;overflow:hidden;transition:all .3s}
-.kpi-card:hover{border-color:var(--gray-300);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.06)}
-.kpi-card .kpi-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-bottom:12px}
-.kpi-dot.red{background:var(--red)}.kpi-dot.green{background:var(--accent-green)}.kpi-dot.amber{background:var(--accent-amber)}.kpi-dot.blue{background:var(--accent-blue)}
-.kpi-card .kpi-label{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--gray-500);text-transform:uppercase;margin-bottom:10px}
-.kpi-card .kpi-value{font-size:36px;font-weight:800;letter-spacing:-1.5px;color:var(--black)}
-.kpi-card .kpi-sub{font-size:12px;color:var(--gray-500);margin-top:4px;font-weight:500}
-
-/* ââ Section Headers ââ */
-.section-title{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gray-500);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px}
-.section-title .num{background:var(--black);color:var(--white);width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
-
-/* ââ Cards ââ */
-.card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:28px;margin-bottom:28px;transition:all .3s}
-.card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.04)}
-.card-dark{background:var(--black);border:none;color:var(--white);border-radius:var(--radius-lg);padding:28px;margin-bottom:28px}
-.card-dark .section-sub{color:rgba(255,255,255,0.5)}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
-
-/* ââ Editor Cards ââ */
-.editor-card{background:var(--black);border-radius:var(--radius-lg);overflow:hidden;transition:all .3s;color:var(--white)}
-.editor-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.2)}
-.editor-header{padding:24px 24px 20px;display:flex;align-items:center;gap:16px;border-bottom:1px solid #1e1e1e}
-.editor-avatar{width:48px;height:48px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
-.editor-avatar.k{background:linear-gradient(135deg,#00C853,#009624)}
-.editor-avatar.n{background:linear-gradient(135deg,#448AFF,#2962FF)}
-.editor-avatar.s{background:linear-gradient(135deg,#FF212B,#C41820)}
-.editor-info h3{font-size:15px;font-weight:700}
-.editor-info span{font-size:12px;color:rgba(255,255,255,0.5)}
-.editor-score{margin-left:auto;text-align:right}
-.editor-score .score-val{font-size:28px;font-weight:900;letter-spacing:-1px}
-.editor-score .tier{font-size:10px;font-weight:700;padding:4px 12px;border-radius:var(--radius-pill);display:inline-block;margin-top:4px;letter-spacing:0.5px}
-.tier-a{background:rgba(0,200,83,0.15);color:#00C853}
-.tier-b{background:rgba(68,138,255,0.15);color:#448AFF}
-.tier-c{background:rgba(255,179,0,0.15);color:#FFB300}
-.tier-d{background:rgba(255,33,43,0.15);color:#FF212B}
-.editor-body{padding:20px 24px 24px}
-.metric-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
-.metric-row:last-child{border-bottom:none}
-.metric-label{font-size:12px;color:rgba(255,255,255,0.5);font-weight:500}
-.metric-bar-wrap{width:120px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin:0 12px}
-.metric-bar{height:100%;border-radius:3px;transition:width .8s ease}
-.metric-val{font-size:13px;font-weight:700;min-width:36px;text-align:right;color:var(--white)}
-
-/* ââ Insight Box ââ */
-.insight-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius);padding:16px 20px;margin-top:14px}
-.insight-box h4{font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;text-transform:uppercase;letter-spacing:1.5px}
-.insight-box p{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7}
-.insight-box-light{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius);padding:16px 20px;margin-top:14px}
-.insight-box-light h4{font-size:10px;font-weight:700;color:var(--red);margin-bottom:6px;text-transform:uppercase;letter-spacing:1.5px}
-.insight-box-light p{font-size:13px;color:var(--gray-500);line-height:1.7}
-
-/* ââ Rankings Table ââ */
-.rank-table{width:100%;border-collapse:separate;border-spacing:0}
-.rank-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--gray-500);text-transform:uppercase;padding:12px 16px;border-bottom:2px solid var(--gray-200)}
-.rank-table td{padding:16px;font-size:13px;font-weight:500;border-bottom:1px solid var(--gray-100);color:var(--gray-700)}
-.rank-table tr:hover td{background:var(--gray-50)}
-.rank-num{font-size:20px;font-weight:900;color:var(--red)}
-.rank-table-dark{width:100%;border-collapse:separate;border-spacing:0}
-.rank-table-dark th{text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.1)}
-.rank-table-dark td{padding:16px;font-size:13px;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.05);color:rgba(255,255,255,0.8)}
-.rank-table-dark tr:hover td{background:rgba(255,255,255,0.03)}
-
-/* ââ Charts ââ */
-.chart-wrap{position:relative;height:260px}
-.chart-wrap canvas{max-height:260px}
-
-/* ââ Year Overview Grid ââ */
-.year-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
-.year-month-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:18px;cursor:pointer;transition:all .3s;text-align:center}
-.year-month-card:hover{border-color:var(--red);transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,33,43,0.08)}
-.year-month-card.available{border-color:var(--red);background:linear-gradient(135deg,#fff5f5,#fff)}
-.year-month-card.empty{opacity:0.4;cursor:default}
-.year-month-card.empty:hover{border-color:var(--gray-200);transform:none;box-shadow:none}
-.year-month-card .month-name{font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:6px;letter-spacing:0.5px}
-.year-month-card.available .month-name{color:var(--red);font-weight:700}
-.year-month-card .month-score{font-size:26px;font-weight:800;letter-spacing:-1px}
-
-/* ââ Scoring Info ââ */
-.scoring-info{font-size:13px;color:var(--gray-500);line-height:1.8}
-.scoring-info strong{color:var(--black);font-weight:700}
-
-/* ââ Pill Tags ââ */
-.pill{display:inline-block;padding:4px 14px;border-radius:var(--radius-pill);font-size:11px;font-weight:700;letter-spacing:0.5px}
-.pill-red{background:var(--red);color:white}
-.pill-black{background:var(--black);color:white}
-.pill-outline{background:transparent;border:1.5px solid var(--gray-300);color:var(--gray-500)}
-
-/* ââ Responsive ââ */
-@media(max-width:1200px){.kpi-row{grid-template-columns:repeat(2,1fr)}.grid-2,.grid-3{grid-template-columns:1fr}.year-summary-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:768px){.sidebar{width:64px}.sidebar .logo-text,.sidebar .sidebar-section,.sidebar .nav-item span:not(.nav-icon),.sidebar .nav-badge{display:none}.main{margin-left:64px}.kpi-row{grid-template-columns:1fr}.year-summary-grid{grid-template-columns:repeat(2,1fr)}}
+.page-header{margin-bottom:32px}
+.page-title{font-size:28px;font-weight:800;color:var(--gray-900);letter-spacing:-.03em;line-height:1.2}
+.page-desc{font-size:14px;color:var(--gray-500);margin-top:6px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.kpi-card{background:var(--white);border-radius:var(--radius-lg);padding:20px 24px;box-shadow:var(--shadow);border:1px solid var(--gray-100);position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.red::before{background:var(--red)}
+.kpi-card.green::before{background:#10B981}
+.kpi-card.blue::before{background:#3B82F6}
+.kpi-card.purple::before{background:#8B5CF6}
+.kpi-card.amber::before{background:#F59E0B}
+.kpi-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-500);margin-bottom:8px}
+.kpi-value{font-size:28px;font-weight:800;color:var(--gray-900);letter-spacing:-.02em}
+.kpi-sub{font-size:12px;color:var(--gray-400);margin-top:4px}
+.card{background:var(--white);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);border:1px solid var(--gray-100);margin-bottom:24px}
+.card-title{font-size:16px;font-weight:700;color:var(--gray-900);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+@media(max-width:1200px){.grid-2,.grid-3{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:var(--gray-50);padding:10px 14px;text-align:left;font-weight:600;color:var(--gray-600);border-bottom:2px solid var(--gray-200);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--gray-100);color:var(--gray-700)}
+tbody tr:hover{background:var(--gray-50)}
+.tier-badge{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-weight:800;font-size:14px;color:var(--white)}
+.tier-A{background:linear-gradient(135deg,#10B981,#059669)}
+.tier-B{background:linear-gradient(135deg,#3B82F6,#2563EB)}
+.tier-C{background:linear-gradient(135deg,#F59E0B,#D97706)}
+.tier-D{background:linear-gradient(135deg,#EF4444,#DC2626)}
+.score-bar{height:8px;border-radius:4px;background:var(--gray-100);overflow:hidden;min-width:80px}
+.score-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.editor-card{background:var(--white);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow);border:1px solid var(--gray-100);margin-bottom:20px}
+.editor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.editor-name{font-size:18px;font-weight:700;color:var(--gray-900)}
+.editor-meta{display:flex;gap:16px;font-size:13px;color:var(--gray-500);align-items:center;margin-top:4px}
+.editor-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px}
+.stat-item{text-align:center;padding:12px;background:var(--gray-50);border-radius:var(--radius)}
+.stat-value{font-size:20px;font-weight:800;color:var(--gray-900)}
+.stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-500);margin-top:4px}
+.chart-container{position:relative;height:280px;margin-top:8px}
+.loading{display:flex;align-items:center;justify-content:center;min-height:400px;flex-direction:column;gap:16px}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--gray-200);border-top-color:var(--red);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--gray-500)}
+.error-msg{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius);padding:20px;color:#991B1B;text-align:center;margin:20px 0}
+.tag{display:inline-block;padding:2px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;letter-spacing:.02em}
+.tag-green{background:#D1FAE5;color:#065F46}
+.tag-blue{background:#DBEAFE;color:#1E40AF}
+.tag-amber{background:#FEF3C7;color:#92400E}
+.tag-red{background:#FEE2E2;color:#991B1B}
+.hero-banner{background:linear-gradient(135deg,var(--black) 0%,#1a1a1a 50%,var(--red) 100%);border-radius:var(--radius-lg);padding:40px;color:var(--white);margin-bottom:32px;position:relative;overflow:hidden}
+.hero-banner::after{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(255,33,43,.3) 0%,transparent 70%);pointer-events:none}
+.hero-title{font-size:32px;font-weight:900;letter-spacing:-.03em;line-height:1.1}
+.hero-subtitle{font-size:14px;color:rgba(255,255,255,.7);margin-top:8px;font-weight:400}
+.weight-info{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:var(--radius-pill);background:var(--gray-100);font-size:11px;color:var(--gray-600);font-weight:500}
 </style>
 </head>
 <body>
-
-<!-- âââ SIDEBAR âââ -->
-<nav class="sidebar">
-  <div class="sidebar-logo">
-    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="22" cy="22" r="20" stroke="#FF212B" stroke-width="3" fill="none"/>
-      <path d="M14 30V14h2l5 8 5-8h2v16h-2.5V20l-4.5 7-4.5-7v10H14z" fill="#000"/>
-    </svg>
-    <div class="logo-text">CREATE MORE<span>PRODUCTIONS</span></div>
-  </div>
-
-  <div class="sidebar-section">Overview</div>
-  <div class="sidebar-nav">
-    <div class="nav-item active" onclick="showPage('year-overview')">
-      <span class="nav-icon">&#9679;</span>
-      <span>Year Overview</span>
-      <span class="nav-badge">2026</span>
-    </div>
-
-    <div class="sidebar-section">Monthly Reports</div>
-
-    <div class="nav-item" onclick="showPage('feb-2026')">
-      <span class="nav-icon">&#9679;</span>
-      <span>February 2026</span>
-    </div>
-    <div class="nav-item disabled">
-      <span class="nav-icon">&#9675;</span>
-      <span>March 2026</span>
-    </div>
-    <div class="nav-item disabled">
-      <span class="nav-icon">&#9675;</span>
-      <span>April 2026</span>
-    </div>
-    <div class="nav-item disabled">
-      <span class="nav-icon">&#9675;</span>
-      <span>May 2026</span>
-    </div>
-    <div class="nav-item disabled">
-      <span class="nav-icon">&#9675;</span>
-      <span>June 2026</span>
-    </div>
-  </div>
-
-  <div class="sidebar-footer">
-    Auto-generated monthly<br>Powered by Claude
-  </div>
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-header">
+<div class="sidebar-logo">Create <span>More</span></div>
+<div class="sidebar-subtitle">Editor Performance Scorecard</div>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-section-title">Overview</div>
+<a class="nav-item active" onclick="showPage('year-overview')" id="nav-year-overview">
+<span class="nav-icon">&#9733;</span> Year Overview
+</a>
+<div class="nav-section-title" id="nav-months-title">Monthly Reports</div>
+<div id="nav-months-container"></div>
 </nav>
+<div class="sidebar-footer">
+&#169; 2026 Create More Productions<br>
+Updated dynamically from Google Sheets
+</div>
+</aside>
 
-<!-- âââ MAIN CONTENT âââ -->
-<div class="main">
-
-<!-- PAGE: YEAR OVERVIEW -->
+<main class="main">
+<!-- Year Overview Page -->
 <div class="page active" id="page-year-overview">
-  <div class="page-hero">
-    <h1><strong>2026</strong> Year Overview</h1>
-    <p>Cumulative editor performance across all monthly reports</p>
-    <div class="period-badge">Jan 2026 â Dec 2026</div>
-  </div>
-  <div class="page-content">
-
-  <!-- KPIs -->
-  <div class="kpi-row">
-    <div class="kpi-card">
-      <div class="kpi-dot red"></div>
-      <div class="kpi-label">Reports Generated</div>
-      <div class="kpi-value">1</div>
-      <div class="kpi-sub">of 12 months</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-dot green"></div>
-      <div class="kpi-label">Avg Team Score</div>
-      <div class="kpi-value">78.6</div>
-      <div class="kpi-sub">Tier B â Good</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-dot amber"></div>
-      <div class="kpi-label">Top Performer</div>
-      <div class="kpi-value" style="font-size:24px;letter-spacing:0">Karim C.</div>
-      <div class="kpi-sub">Score: 88.5 Â· Tier A</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-dot blue"></div>
-      <div class="kpi-label">Reels Delivered</div>
-      <div class="kpi-value">60</div>
-      <div class="kpi-sub">20 per editor Â· Feb batch</div>
-    </div>
-  </div>
-
-  <!-- Monthly Calendar -->
-  <div class="section-title"><span class="num">1</span> Monthly Breakdown</div>
-  <div class="card">
-    <div class="year-summary-grid">
-      <div class="year-month-card empty"><div class="month-name">January</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card available" onclick="showPage('feb-2026')"><div class="month-name">February</div><div class="month-score" style="color:var(--red)">78.6</div></div>
-      <div class="year-month-card empty"><div class="month-name">March</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">April</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">May</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">June</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">July</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">August</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">September</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">October</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">November</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-      <div class="year-month-card empty"><div class="month-name">December</div><div class="month-score" style="color:var(--gray-300)">â</div></div>
-    </div>
-  </div>
-
-  <!-- YTD Trend Chart -->
-  <div class="section-title"><span class="num">2</span> Year-to-Date Score Trend</div>
-  <div class="card">
-    <div class="chart-wrap"><canvas id="ytdTrendChart"></canvas></div>
-    <div class="insight-box-light">
-      <h4>Year Summary</h4>
-      <p>Only February data is available so far. As new monthly reports are generated on the 1st of each month, this chart will show score trends across the full year for each editor. Watch for patterns in consistency and improvement.</p>
-    </div>
-  </div>
-
-  <!-- YTD Editor Rankings -->
-  <div class="section-title"><span class="num">3</span> Year-to-Date Rankings</div>
-  <div class="card-dark">
-    <table class="rank-table-dark">
-      <thead><tr><th>#</th><th>Editor</th><th>Avg Score</th><th>Tier</th><th>On-Time %</th><th>Revision Rate</th><th>Reports</th></tr></thead>
-      <tbody>
-        <tr><td><span class="rank-num">1</span></td><td><strong style="color:#fff">Karim Chennoufi</strong></td><td style="font-weight:800;color:#fff">88.5</td><td><span class="tier tier-a">A</span></td><td>95%</td><td>0.8</td><td>1</td></tr>
-        <tr><td><span class="rank-num">2</span></td><td><strong style="color:#fff">Nesreen Abazid</strong></td><td style="font-weight:800;color:#fff">76.2</td><td><span class="tier tier-b">B</span></td><td>85%</td><td>1.4</td><td>1</td></tr>
-        <tr><td><span class="rank-num">3</span></td><td><strong style="color:#fff">Shota Sprunger</strong></td><td style="font-weight:800;color:#fff">71.0</td><td><span class="tier tier-c">C</span></td><td>70%</td><td>2.1</td><td>1</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  </div>
+<div class="loading" id="loading-indicator">
+<div class="loading-spinner"></div>
+<div class="loading-text">Loading data from Google Sheets...</div>
+</div>
+<div id="overview-content" style="display:none">
+<div class="hero-banner">
+<div class="hero-title">Editor Performance Scorecard</div>
+<div class="hero-subtitle">Create More Productions &mdash; Comprehensive performance tracking across all editors</div>
+</div>
+<div style="margin-bottom:20px;display:flex;flex-wrap:wrap;gap:8px">
+<span class="weight-info">On-Time Delivery: 30%</span>
+<span class="weight-info">Revision Rate: 25%</span>
+<span class="weight-info">Output Volume: 20%</span>
+<span class="weight-info">Responsiveness: 15%</span>
+<span class="weight-info">Client Satisfaction: 10%</span>
+</div>
+<div class="kpi-grid" id="overview-kpis"></div>
+<div class="grid-2">
+<div class="card">
+<div class="card-title"><span style="font-size:18px">&#128200;</span> Composite Score Trend</div>
+<div class="chart-container"><canvas id="chart-trend"></canvas></div>
+</div>
+<div class="card">
+<div class="card-title"><span style="font-size:18px">&#127942;</span> Tier Distribution</div>
+<div class="chart-container"><canvas id="chart-tiers"></canvas></div>
+</div>
+</div>
+<div class="card">
+<div class="card-title"><span style="font-size:18px">&#128202;</span> All-Time Rankings</div>
+<div id="overview-rankings"></div>
+</div>
+</div>
 </div>
 
-<!-- PAGE: FEBRUARY 2026 -->
-<div class="page" id="page-feb-2026">
-  <div class="page-hero">
-    <h1><strong>February 2026</strong> Report</h1>
-    <p>Editor performance scorecard â all client projects</p>
-    <div class="period-badge">Feb 1 â Feb 28, 2026</div>
-  </div>
-  <div class="page-content">
-
-  <!-- KPIs -->
-  <div class="kpi-row">
-    <div class="kpi-card">
-      <div class="kpi-dot red"></div>
-      <div class="kpi-label">Team Avg Score</div>
-      <div class="kpi-value">78.6</div>
-      <div class="kpi-sub">Tier B â Good</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-dot green"></div>
-      <div class="kpi-label">On-Time Delivery</div>
-      <div class="kpi-value">83%</div>
-      <div class="kpi-sub">50 of 60 reels on time</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-dot amber"></div>
-      <div class="kpi-label">Avg Revisions</div>
-      <div class="kpi-value">1.4</div>
-      <div class="kpi-sub">per reel across team</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-dot blue"></div>
-      <div class="kpi-label">Avg Turnaround</div>
-      <div class="kpi-value">5.8h</div>
-      <div class="kpi-sub">editing + revision time</div>
-    </div>
-  </div>
-
-  <!-- Composite Score Chart -->
-  <div class="section-title"><span class="num">1</span> Composite Scores</div>
-  <div class="card">
-    <div class="grid-2">
-      <div class="chart-wrap"><canvas id="compositeChart"></canvas></div>
-      <div>
-        <div class="scoring-info">
-          <strong>Scoring Formula</strong><br>
-          On-Time Delivery 30% Â· Revision Rate 25% Â· Output Volume 20% Â· Responsiveness 15% Â· Client Satisfaction 10%
-        </div>
-        <div style="margin-top:16px" class="scoring-info">
-          <strong>Tier Thresholds</strong><br>
-          A: 90â100 Â· B: 75â89 Â· C: 60â74 Â· D: Below 60
-        </div>
-        <div class="insight-box-light" style="margin-top:20px">
-          <h4>Key Takeaway</h4>
-          <p>Karim leads with a strong A-tier score of 88.5, driven by excellent on-time rates and low revisions. Nesreen is solid at B-tier. Shota has room for improvement, particularly in delivery speed and revision reduction.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Milestone On-Time Chart -->
-  <div class="section-title"><span class="num">2</span> Milestone On-Time Rate</div>
-  <div class="card-dark">
-    <div class="chart-wrap"><canvas id="milestoneChart"></canvas></div>
-    <div class="insight-box">
-      <h4>Delivery Windows</h4>
-      <p>Reel 1 must be delivered within 48 hours of footage receipt. Reels 2â7 within 7 days. Reels 8â20 within 14 days. Karim consistently meets all three milestones. Nesreen and Shota show drop-off on later reels.</p>
-    </div>
-  </div>
-
-  <!-- Grid: Revision Reasons + Time Breakdown -->
-  <div class="grid-2">
-    <div>
-      <div class="section-title"><span class="num">3</span> Revision Reasons</div>
-      <div class="card">
-        <div class="chart-wrap" style="height:220px"><canvas id="revisionChart"></canvas></div>
-      </div>
-    </div>
-    <div>
-      <div class="section-title"><span class="num">4</span> Time Per Reel</div>
-      <div class="card">
-        <div class="chart-wrap" style="height:220px"><canvas id="timeChart"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Individual Editor Scorecards -->
-  <div class="section-title" style="margin-top:8px"><span class="num">5</span> Individual Scorecards</div>
-  <div class="grid-3">
-    <!-- Karim -->
-    <div class="editor-card">
-      <div class="editor-header">
-        <div class="editor-avatar k">KC</div>
-        <div class="editor-info"><h3>Karim Chennoufi</h3><span>Senior Editor</span></div>
-        <div class="editor-score"><div class="score-val">88.5</div><span class="tier tier-a">Tier A</span></div>
-      </div>
-      <div class="editor-body">
-        <div class="metric-row"><span class="metric-label">On-Time (30%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:95%;background:var(--accent-green)"></div></div><span class="metric-val">95%</span></div>
-        <div class="metric-row"><span class="metric-label">Revision Rate (25%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:84%;background:var(--accent-blue)"></div></div><span class="metric-val">0.8</span></div>
-        <div class="metric-row"><span class="metric-label">Volume (20%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:100%;background:var(--red)"></div></div><span class="metric-val">20</span></div>
-        <div class="metric-row"><span class="metric-label">Response (15%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:88%;background:var(--accent-amber)"></div></div><span class="metric-val">2.1h</span></div>
-        <div class="metric-row"><span class="metric-label">Client Score (10%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:90%;background:var(--accent-green)"></div></div><span class="metric-val">9.0</span></div>
-        <div class="insight-box"><h4>Summary</h4><p>Top performer this month. Consistently fast turnaround and minimal revisions. Only 1 brief mismatch out of 20 reels.</p></div>
-      </div>
-    </div>
-    <!-- Nesreen -->
-    <div class="editor-card">
-      <div class="editor-header">
-        <div class="editor-avatar n">NA</div>
-        <div class="editor-info"><h3>Nesreen Abazid</h3><span>Editor</span></div>
-        <div class="editor-score"><div class="score-val">76.2</div><span class="tier tier-b">Tier B</span></div>
-      </div>
-      <div class="editor-body">
-        <div class="metric-row"><span class="metric-label">On-Time (30%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:85%;background:var(--accent-green)"></div></div><span class="metric-val">85%</span></div>
-        <div class="metric-row"><span class="metric-label">Revision Rate (25%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:65%;background:var(--accent-blue)"></div></div><span class="metric-val">1.4</span></div>
-        <div class="metric-row"><span class="metric-label">Volume (20%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:100%;background:var(--red)"></div></div><span class="metric-val">20</span></div>
-        <div class="metric-row"><span class="metric-label">Response (15%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:65%;background:var(--accent-amber)"></div></div><span class="metric-val">4.2h</span></div>
-        <div class="metric-row"><span class="metric-label">Client Score (10%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:78%;background:var(--accent-amber)"></div></div><span class="metric-val">7.8</span></div>
-        <div class="insight-box"><h4>Summary</h4><p>Solid B-tier performance. Revision rate and response time are areas for improvement. Strong volume delivery with consistent quality.</p></div>
-      </div>
-    </div>
-    <!-- Shota -->
-    <div class="editor-card">
-      <div class="editor-header">
-        <div class="editor-avatar s">SS</div>
-        <div class="editor-info"><h3>Shota Sprunger</h3><span>Editor</span></div>
-        <div class="editor-score"><div class="score-val">71.0</div><span class="tier tier-c">Tier C</span></div>
-      </div>
-      <div class="editor-body">
-        <div class="metric-row"><span class="metric-label">On-Time (30%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:70%;background:var(--accent-amber)"></div></div><span class="metric-val">70%</span></div>
-        <div class="metric-row"><span class="metric-label">Revision Rate (25%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:48%;background:var(--red)"></div></div><span class="metric-val">2.1</span></div>
-        <div class="metric-row"><span class="metric-label">Volume (20%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:100%;background:var(--red)"></div></div><span class="metric-val">20</span></div>
-        <div class="metric-row"><span class="metric-label">Response (15%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:45%;background:var(--red)"></div></div><span class="metric-val">7.4h</span></div>
-        <div class="metric-row"><span class="metric-label">Client Score (10%)</span><div class="metric-bar-wrap"><div class="metric-bar" style="width:68%;background:var(--accent-amber)"></div></div><span class="metric-val">6.8</span></div>
-        <div class="insight-box"><h4>Summary</h4><p>Needs improvement in turnaround time and revision count. High idle time (11.9h avg) suggests workflow bottlenecks. Recommended: pair mentoring with Karim.</p></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Rankings -->
-  <div class="section-title" style="margin-top:8px"><span class="num">6</span> February Rankings</div>
-  <div class="card">
-    <table class="rank-table">
-      <thead><tr><th>#</th><th>Editor</th><th>Score</th><th>Tier</th><th>On-Time</th><th>Revisions</th><th>Avg Turnaround</th><th>Client Score</th></tr></thead>
-      <tbody>
-        <tr><td><span class="rank-num">1</span></td><td><strong>Karim Chennoufi</strong></td><td style="font-weight:800">88.5</td><td><span class="tier tier-a">A</span></td><td>95%</td><td>0.8</td><td>5.0h</td><td>9.0</td></tr>
-        <tr><td><span class="rank-num">2</span></td><td><strong>Nesreen Abazid</strong></td><td style="font-weight:800">76.2</td><td><span class="tier tier-b">B</span></td><td>85%</td><td>1.4</td><td>10.0h</td><td>7.8</td></tr>
-        <tr><td><span class="rank-num">3</span></td><td><strong>Shota Sprunger</strong></td><td style="font-weight:800">71.0</td><td><span class="tier tier-c">C</span></td><td>70%</td><td>2.1</td><td>15.5h</td><td>6.8</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div style="text-align:center;padding:24px 0;color:var(--gray-300);font-size:12px;font-weight:500">
-    Sample data Â· Auto-generated on March 9, 2026 Â· Create More Productions &copy; 2026
-  </div>
-
-  </div>
+<!-- Monthly pages injected here -->
+<div id="monthly-pages-container"></div>
+</main>
 </div>
-
-</div><!-- end .main -->
 
 <script>
-// ââ Navigation ââ
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item:not(.disabled)').forEach(n => n.classList.remove('active'));
-  const page = document.getElementById('page-' + id);
-  if (page) page.classList.add('active');
-  const navItems = document.querySelectorAll('.nav-item:not(.disabled)');
-  navItems.forEach(n => {
-    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(id)) n.classList.add('active');
+const SHEET_ID = '192QhMmEYgaCM0TmPpa88PKupDStosa3lAHZqCjTmLm8';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv';
+
+const MONTH_ORDER = [
+  'Feb 2026','Mar 2026','Apr 2026','May 2026','Jun 2026','Jul 2026',
+  'Aug 2026','Sep 2026','Oct 2026','Nov 2026','Dec 2026',
+  'Jan 2027','Feb 2027','Mar 2027','Apr 2027','May 2027','Jun 2027',
+  'Jul 2027','Aug 2027','Sep 2027','Oct 2027','Nov 2027','Dec 2027'
+];
+
+var allData = [];
+var chartInstances = {};
+
+/* ââ CSV Parser ââ */
+function parseCSV(text) {
+  var lines = text.split('\n').filter(function(l) { return l.trim().length > 0; });
+  if (lines.length < 2) return [];
+  var headers = parseCSVLine(lines[0]);
+  var rows = [];
+  for (var i = 1; i < lines.length; i++) {
+    var vals = parseCSVLine(lines[i]);
+    if (vals.length < 2) continue;
+    var row = {};
+    for (var j = 0; j < headers.length; j++) {
+      row[headers[j].replace(/^"|"$/g, '').trim()] = (vals[j] || '').replace(/^"|"$/g, '').trim();
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+function parseCSVLine(line) {
+  var result = [];
+  var current = '';
+  var inQuotes = false;
+  for (var i = 0; i < line.length; i++) {
+    var ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (i + 1 < line.length && line[i + 1] === '"') { current += '"'; i++; }
+        else inQuotes = false;
+      } else current += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { result.push(current); current = ''; }
+      else current += ch;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+/* ââ Normalize Row ââ */
+function norm(r) {
+  return {
+    month: r['Month'] || '',
+    editor: r['Editor'] || '',
+    onTime: parseFloat(r['On-Time %']) || 0,
+    revisionRate: parseFloat(r['Revision Rate']) || 0,
+    outputVolume: parseFloat(r['Output Volume']) || 0,
+    responseTime: parseFloat(r['Response Time (h)']) || 0,
+    clientScore: parseFloat(r['Client Score']) || 0,
+    turnaroundTime: parseFloat(r['Turnaround Time (h)']) || 0,
+    compositeScore: parseFloat(r['Composite Score']) || 0,
+    tier: r['Tier'] || '',
+    reel1OnTime: parseFloat(r['Reel 1 On-Time %']) || 0,
+    reels27OnTime: parseFloat(r['Reels 2-7 On-Time %']) || 0,
+    reels820OnTime: parseFloat(r['Reels 8-20 On-Time %']) || 0,
+    briefMismatch: parseInt(r['Brief Mismatch']) || 0,
+    pacingIssues: parseInt(r['Pacing Issues']) || 0,
+    audioIssues: parseInt(r['Audio Issues']) || 0,
+    colorIssues: parseInt(r['Color Issues']) || 0,
+    editingTime: parseFloat(r['Editing Time (h)']) || 0,
+    revisionFixTime: parseFloat(r['Revision Fix Time (h)']) || 0,
+    idleTime: parseFloat(r['Idle Time (h)']) || 0
+  };
+}
+
+/* ââ Fetch Data ââ */
+function fetchData() {
+  fetch(CSV_URL)
+    .then(function(resp) {
+      if (!resp.ok) throw new Error('Failed to fetch sheet data (HTTP ' + resp.status + ')');
+      return resp.text();
+    })
+    .then(function(text) {
+      var raw = parseCSV(text);
+      allData = [];
+      for (var i = 0; i < raw.length; i++) {
+        var n = norm(raw[i]);
+        if (n.month && n.editor) allData.push(n);
+      }
+      if (allData.length === 0) throw new Error('No data found in sheet');
+      document.getElementById('loading-indicator').style.display = 'none';
+      document.getElementById('overview-content').style.display = 'block';
+      buildUI();
+    })
+    .catch(function(err) {
+      document.getElementById('loading-indicator').innerHTML =
+        '<div class="error-msg"><strong>&#9888; Error loading data</strong><br><br>' + escH(err.message) +
+        '<br><br>Make sure the Google Sheet is published to the web and contains data.</div>';
+    });
+}
+
+/* ââ Build UI ââ */
+function buildUI() {
+  var monthSet = {};
+  for (var i = 0; i < allData.length; i++) monthSet[allData[i].month] = true;
+  var months = Object.keys(monthSet).sort(function(a, b) {
+    return MONTH_ORDER.indexOf(a) - MONTH_ORDER.indexOf(b);
   });
-  setTimeout(initCharts, 100);
+
+  var editorSet = {};
+  for (var i = 0; i < allData.length; i++) editorSet[allData[i].editor] = true;
+  var editors = Object.keys(editorSet);
+
+  buildSidebar(months);
+  buildOverview(months, editors);
+  for (var i = 0; i < months.length; i++) buildMonthPage(months[i]);
 }
 
-// ââ Charts ââ
-const chartInstances = {};
-function initCharts() {
-  const defaults = Chart.defaults;
-  defaults.font.family = 'Inter';
-  defaults.plugins.legend.labels.padding = 16;
-
-  // Composite Scores (Horizontal Bar)
-  const ctx1 = document.getElementById('compositeChart');
-  if (ctx1 && ctx1.offsetParent !== null) {
-    if (chartInstances.composite) chartInstances.composite.destroy();
-    defaults.color = '#6B6B6B';
-    chartInstances.composite = new Chart(ctx1, {
-      type: 'bar',
-      data: {
-        labels: ['Karim Chennoufi', 'Nesreen Abazid', 'Shota Sprunger'],
-        datasets: [{
-          data: [88.5, 76.2, 71.0],
-          backgroundColor: ['#FF212B', 'rgba(255,33,43,0.5)', 'rgba(255,33,43,0.25)'],
-          borderRadius: 8, barPercentage: 0.55,
-        }]
-      },
-      options: {
-        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { max: 100, grid: { color: '#f0f0f0' }, ticks: { callback: v => v + '%' } },
-          y: { grid: { display: false } }
-        }
-      }
-    });
-  }
-
-  // Milestone On-Time (dark card)
-  const ctx2 = document.getElementById('milestoneChart');
-  if (ctx2 && ctx2.offsetParent !== null) {
-    if (chartInstances.milestone) chartInstances.milestone.destroy();
-    defaults.color = 'rgba(255,255,255,0.5)';
-    chartInstances.milestone = new Chart(ctx2, {
-      type: 'bar',
-      data: {
-        labels: ['Reel 1 (48hr)', 'Reels 2-7 (7d)', 'Reels 8-20 (14d)'],
-        datasets: [
-          { label: 'Karim', data: [100, 92, 85], backgroundColor: 'rgba(0,200,83,0.7)', borderRadius: 6, barPercentage: 0.7 },
-          { label: 'Nesreen', data: [100, 80, 72], backgroundColor: 'rgba(68,138,255,0.7)', borderRadius: 6, barPercentage: 0.7 },
-          { label: 'Shota', data: [50, 67, 60], backgroundColor: 'rgba(255,33,43,0.7)', borderRadius: 6, barPercentage: 0.7 },
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        scales: {
-          y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { callback: v => v + '%', color: 'rgba(255,255,255,0.4)' } },
-          x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.4)' } }
-        },
-        plugins: { legend: { labels: { color: 'rgba(255,255,255,0.6)' } } }
-      }
-    });
-  }
-
-  // Revision Reasons Doughnut
-  const ctx3 = document.getElementById('revisionChart');
-  if (ctx3 && ctx3.offsetParent !== null) {
-    if (chartInstances.revision) chartInstances.revision.destroy();
-    defaults.color = '#6B6B6B';
-    chartInstances.revision = new Chart(ctx3, {
-      type: 'doughnut',
-      data: {
-        labels: ['Brief Mismatch', 'Pacing', 'Audio', 'Color'],
-        datasets: [{ data: [7, 7, 3, 2], backgroundColor: ['#FF212B', '#FFB300', '#448AFF', '#9C27B0'], borderColor: '#fff', borderWidth: 3 }]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false, cutout: '65%',
-        plugins: { legend: { position: 'right', labels: { padding: 16, font: { size: 12 }, color: '#6B6B6B' } } }
-      }
-    });
-  }
-
-  // Time Per Reel (Stacked Bar)
-  const ctx4 = document.getElementById('timeChart');
-  if (ctx4 && ctx4.offsetParent !== null) {
-    if (chartInstances.time) chartInstances.time.destroy();
-    defaults.color = '#6B6B6B';
-    chartInstances.time = new Chart(ctx4, {
-      type: 'bar',
-      data: {
-        labels: ['Karim', 'Nesreen', 'Shota'],
-        datasets: [
-          { label: 'Editing', data: [3.2, 5.8, 7.4], backgroundColor: '#448AFF', borderRadius: 6 },
-          { label: 'Revision Fix', data: [1.8, 4.2, 8.1], backgroundColor: '#FFB300', borderRadius: 6 },
-          { label: 'Idle', data: [1.2, 3.3, 11.9], backgroundColor: 'rgba(255,33,43,0.25)', borderRadius: 6 },
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        scales: {
-          y: { stacked: true, grid: { color: '#f0f0f0' }, ticks: { callback: v => v + 'h' } },
-          x: { stacked: true, grid: { display: false } }
-        }
-      }
-    });
-  }
-
-  // YTD Trend (Line)
-  const ctx5 = document.getElementById('ytdTrendChart');
-  if (ctx5 && ctx5.offsetParent !== null) {
-    if (chartInstances.ytd) chartInstances.ytd.destroy();
-    defaults.color = '#6B6B6B';
-    chartInstances.ytd = new Chart(ctx5, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [
-          { label: 'Karim', data: [null, 88.5, null,null,null,null,null,null,null,null,null,null], borderColor: '#00C853', backgroundColor: 'rgba(0,200,83,0.08)', tension: 0.3, pointRadius: 7, pointBackgroundColor: '#00C853', spanGaps: false, borderWidth: 3 },
-          { label: 'Nesreen', data: [null, 76.2, null,null,null,null,null,null,null,null,null,null], borderColor: '#448AFF', backgroundColor: 'rgba(68,138,255,0.08)', tension: 0.3, pointRadius: 7, pointBackgroundColor: '#448AFF', spanGaps: false, borderWidth: 3 },
-          { label: 'Shota', data: [null, 71.0, null,null,null,null,null,null,null,null,null,null], borderColor: '#FF212B', backgroundColor: 'rgba(255,33,43,0.08)', tension: 0.3, pointRadius: 7, pointBackgroundColor: '#FF212B', spanGaps: false, borderWidth: 3 },
-        ]
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        scales: {
-          y: { min: 50, max: 100, grid: { color: '#f0f0f0' }, ticks: { callback: v => v + '%' } },
-          x: { grid: { color: '#f5f5f5' } }
-        },
-        plugins: { legend: { labels: { usePointStyle: true, pointStyle: 'circle' } } }
-      }
-    });
+/* ââ Sidebar Nav ââ */
+function buildSidebar(months) {
+  var c = document.getElementById('nav-months-container');
+  c.innerHTML = '';
+  for (var i = 0; i < months.length; i++) {
+    var m = months[i];
+    var slug = m.toLowerCase().replace(/\s+/g, '-');
+    var a = document.createElement('a');
+    a.className = 'nav-item';
+    a.id = 'nav-' + slug;
+    a.setAttribute('onclick', "showPage('" + slug + "')");
+    a.innerHTML = '<span class="nav-icon">&#128197;</span> ' + escH(m);
+    c.appendChild(a);
   }
 }
 
-window.addEventListener('load', () => setTimeout(initCharts, 200));
+/* ââ Overview ââ */
+function buildOverview(months, editors) {
+  var totalScore = 0, totalOnTime = 0, totalRev = 0, totalClient = 0, totalResp = 0;
+  for (var i = 0; i < allData.length; i++) {
+    totalScore += allData[i].compositeScore;
+    totalOnTime += allData[i].onTime;
+    totalRev += allData[i].revisionRate;
+    totalClient += allData[i].clientScore;
+    totalResp += allData[i].responseTime;
+  }
+  var n = allData.length;
+  var avgScore = (totalScore / n).toFixed(1);
+  var avgOnTime = (totalOnTime / n).toFixed(1);
+  var avgRev = (totalRev / n).toFixed(2);
+  var avgClient = (totalClient / n).toFixed(1);
+  var avgResp = (totalResp / n).toFixed(1);
+
+  document.getElementById('overview-kpis').innerHTML =
+    kpi('Avg Composite Score', avgScore + '/100', 'Across all editors and months', 'red') +
+    kpi('Avg On-Time Delivery', avgOnTime + '%', 'Weighted 30% of total score', 'green') +
+    kpi('Avg Revision Rate', avgRev, 'Revisions per project', 'blue') +
+    kpi('Avg Client Score', avgClient + '/10', 'Weighted 10% of total score', 'purple') +
+    kpi('Avg Response Time', avgResp + 'h', 'Weighted 15% of total score', 'amber');
+
+  // Rankings
+  var edAvg = [];
+  for (var e = 0; e < editors.length; e++) {
+    var ed = editors[e];
+    var rows = allData.filter(function(r) { return r.editor === ed; });
+    var avg = 0;
+    for (var j = 0; j < rows.length; j++) avg += rows[j].compositeScore;
+    avg = avg / rows.length;
+    edAvg.push({ editor: ed, avgScore: avg, tier: rows[rows.length - 1].tier, months: rows.length });
+  }
+  edAvg.sort(function(a, b) { return b.avgScore - a.avgScore; });
+
+  var h = '<table><thead><tr><th>Rank</th><th>Editor</th><th>Avg Score</th><th>Tier</th><th>Performance</th><th>Reports</th></tr></thead><tbody>';
+  for (var i = 0; i < edAvg.length; i++) {
+    var ea = edAvg[i];
+    var pct = ea.avgScore;
+    var bc = pct >= 90 ? '#10B981' : pct >= 75 ? '#3B82F6' : pct >= 60 ? '#F59E0B' : '#EF4444';
+    h += '<tr><td><strong>#' + (i + 1) + '</strong></td>';
+    h += '<td><strong>' + escH(ea.editor) + '</strong></td>';
+    h += '<td><strong>' + ea.avgScore.toFixed(1) + '</strong></td>';
+    h += '<td><span class="tier-badge tier-' + ea.tier + '">' + ea.tier + '</span></td>';
+    h += '<td><div class="score-bar"><div class="score-bar-fill" style="width:' + pct + '%;background:' + bc + '"></div></div></td>';
+    h += '<td>' + ea.months + ' month' + (ea.months > 1 ? 's' : '') + '</td></tr>';
+  }
+  h += '</tbody></table>';
+  document.getElementById('overview-rankings').innerHTML = h;
+
+  buildTrendChart(months, editors);
+  buildTierChart();
+}
+
+function buildTrendChart(months, editors) {
+  var colors = ['#FF212B', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'];
+  var datasets = [];
+  for (var e = 0; e < editors.length; e++) {
+    var ed = editors[e];
+    var data = [];
+    for (var m = 0; m < months.length; m++) {
+      var found = null;
+      for (var j = 0; j < allData.length; j++) {
+        if (allData[j].month === months[m] && allData[j].editor === ed) { found = allData[j]; break; }
+      }
+      data.push(found ? found.compositeScore : null);
+    }
+    datasets.push({
+      label: ed, data: data,
+      borderColor: colors[e % colors.length],
+      backgroundColor: colors[e % colors.length] + '20',
+      tension: 0.4, fill: false, pointRadius: 5, pointHoverRadius: 7, borderWidth: 2.5
+    });
+  }
+  destroyChart('chart-trend');
+  chartInstances['chart-trend'] = new Chart(document.getElementById('chart-trend'), {
+    type: 'line',
+    data: { labels: months, datasets: datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16, font: { family: 'Inter', size: 12 } } } },
+      scales: {
+        y: { min: 0, max: 100, grid: { color: '#F3F4F6' }, ticks: { font: { family: 'Inter' } } },
+        x: { grid: { display: false }, ticks: { font: { family: 'Inter' } } }
+      }
+    }
+  });
+}
+
+function buildTierChart() {
+  var tiers = { A: 0, B: 0, C: 0, D: 0 };
+  for (var i = 0; i < allData.length; i++) {
+    var t = allData[i].tier;
+    if (tiers.hasOwnProperty(t)) tiers[t]++;
+  }
+  destroyChart('chart-tiers');
+  chartInstances['chart-tiers'] = new Chart(document.getElementById('chart-tiers'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Tier A (90 - 100)', 'Tier B (75 - 89)', 'Tier C (60 - 74)', 'Tier D (Below 60)'],
+      datasets: [{ data: [tiers.A, tiers.B, tiers.C, tiers.D], backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'], borderWidth: 0, hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '65%',
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14, font: { family: 'Inter', size: 12 } } } }
+    }
+  });
+}
+
+/* ââ Monthly Page ââ */
+function buildMonthPage(month) {
+  var slug = month.toLowerCase().replace(/\s+/g, '-');
+  var rows = allData.filter(function(r) { return r.month === month; });
+  if (rows.length === 0) return;
+
+  var div = document.createElement('div');
+  div.className = 'page';
+  div.id = 'page-' + slug;
+
+  var totalS = 0, totalOT = 0, totalRR = 0, totalCS = 0, totalOut = 0;
+  for (var i = 0; i < rows.length; i++) {
+    totalS += rows[i].compositeScore;
+    totalOT += rows[i].onTime;
+    totalRR += rows[i].revisionRate;
+    totalCS += rows[i].clientScore;
+    totalOut += rows[i].outputVolume;
+  }
+  var cnt = rows.length;
+  var sorted = rows.slice().sort(function(a, b) { return b.compositeScore - a.compositeScore; });
+  var topEd = sorted[0];
+
+  var h = '';
+  h += '<div class="page-header"><div class="page-title">' + escH(month) + ' Performance Report</div>';
+  h += '<div class="page-desc">Monthly editor scorecard &mdash; Create More Productions</div></div>';
+
+  // Scoring weights reminder
+  h += '<div style="margin-bottom:20px;display:flex;flex-wrap:wrap;gap:8px">';
+  h += '<span class="weight-info">On-Time: 30%</span>';
+  h += '<span class="weight-info">Revision Rate: 25%</span>';
+  h += '<span class="weight-info">Output Volume: 20%</span>';
+  h += '<span class="weight-info">Responsiveness: 15%</span>';
+  h += '<span class="weight-info">Client Satisfaction: 10%</span>';
+  h += '</div>';
+
+  // KPIs
+  h += '<div class="kpi-grid">';
+  h += kpi('Team Avg Score', (totalS / cnt).toFixed(1) + '/100', 'Composite score', 'red');
+  h += kpi('Avg On-Time', (totalOT / cnt).toFixed(1) + '%', 'Delivery rate', 'green');
+  h += kpi('Avg Revisions', (totalRR / cnt).toFixed(2), 'Per project', 'blue');
+  h += kpi('Total Output', totalOut + ' projects', 'All editors combined', 'purple');
+  h += kpi('Top Performer', escH(topEd.editor), 'Score: ' + topEd.compositeScore.toFixed(1), 'amber');
+  h += '</div>';
+
+  // Ranking Table
+  h += '<div class="card"><div class="card-title"><span style="font-size:18px">&#127942;</span> Monthly Rankings</div>';
+  h += '<table><thead><tr><th>Rank</th><th>Editor</th><th>Composite Score</th><th>Tier</th><th>On-Time %</th><th>Revisions</th><th>Client Score</th><th>Response Time</th></tr></thead><tbody>';
+  for (var i = 0; i < sorted.length; i++) {
+    var r = sorted[i];
+    h += '<tr><td><strong>#' + (i + 1) + '</strong></td>';
+    h += '<td><strong>' + escH(r.editor) + '</strong></td>';
+    h += '<td><strong>' + r.compositeScore.toFixed(1) + '</strong></td>';
+    h += '<td><span class="tier-badge tier-' + r.tier + '">' + r.tier + '</span></td>';
+    h += '<td>' + r.onTime + '%</td>';
+    h += '<td>' + r.revisionRate + '</td>';
+    h += '<td>' + r.clientScore + '/10</td>';
+    h += '<td>' + r.responseTime + 'h</td></tr>';
+  }
+  h += '</tbody></table></div>';
+
+  // Charts
+  h += '<div class="grid-2">';
+  h += '<div class="card"><div class="card-title"><span style="font-size:18px">&#128202;</span> Score Breakdown</div><div class="chart-container"><canvas id="chart-bd-' + slug + '"></canvas></div></div>';
+  h += '<div class="card"><div class="card-title"><span style="font-size:18px">&#128337;</span> Time Metrics</div><div class="chart-container"><canvas id="chart-tm-' + slug + '"></canvas></div></div>';
+  h += '</div>';
+
+  // Editor Cards
+  for (var i = 0; i < sorted.length; i++) {
+    h += editorCard(sorted[i]);
+  }
+
+  div.innerHTML = h;
+  document.getElementById('monthly-pages-container').appendChild(div);
+
+  // Build charts after DOM
+  (function(s, sr) {
+    setTimeout(function() {
+      buildBDChart(s, sr);
+      buildTMChart(s, sr);
+    }, 100);
+  })(slug, sorted);
+}
+
+function editorCard(r) {
+  var tt = r.tier === 'A' ? 'green' : r.tier === 'B' ? 'blue' : r.tier === 'C' ? 'amber' : 'red';
+  var h = '<div class="editor-card">';
+  h += '<div class="editor-header"><div>';
+  h += '<div class="editor-name">' + escH(r.editor) + '</div>';
+  h += '<div class="editor-meta"><span class="tag tag-' + tt + '">Tier ' + r.tier + '</span>';
+  h += '<span>Score: <strong>' + r.compositeScore.toFixed(1) + '</strong>/100</span></div></div></div>';
+
+  h += '<div class="editor-stats">';
+  h += stat(r.onTime + '%', 'On-Time Delivery');
+  h += stat(r.revisionRate.toFixed(1), 'Revision Rate');
+  h += stat(r.outputVolume, 'Output Volume');
+  h += stat(r.responseTime + 'h', 'Response Time');
+  h += stat(r.clientScore + '/10', 'Client Score');
+  h += stat(r.turnaroundTime + 'h', 'Turnaround');
+  h += '</div>';
+
+  // Detail panels
+  h += '<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+
+  // Reel breakdown
+  h += '<div style="background:var(--gray-50);border-radius:var(--radius);padding:16px">';
+  h += '<div style="font-size:13px;font-weight:700;margin-bottom:10px">Reel On-Time Breakdown</div>';
+  h += mbar('Reel 1', r.reel1OnTime);
+  h += mbar('Reels 2 &ndash; 7', r.reels27OnTime);
+  h += mbar('Reels 8 &ndash; 20', r.reels820OnTime);
+  h += '</div>';
+
+  // Quality Issues
+  h += '<div style="background:var(--gray-50);border-radius:var(--radius);padding:16px">';
+  h += '<div style="font-size:13px;font-weight:700;margin-bottom:10px">Quality Issues</div>';
+  h += irow('Brief Mismatch', r.briefMismatch);
+  h += irow('Pacing Issues', r.pacingIssues);
+  h += irow('Audio Issues', r.audioIssues);
+  h += irow('Color Issues', r.colorIssues);
+  h += '</div>';
+  h += '</div>';
+
+  // Time
+  h += '<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">';
+  h += tblk('Editing Time', r.editingTime + 'h');
+  h += tblk('Revision Fix Time', r.revisionFixTime + 'h');
+  h += tblk('Idle Time', r.idleTime + 'h');
+  h += '</div>';
+
+  h += '</div>';
+  return h;
+}
+
+function buildBDChart(slug, rows) {
+  var id = 'chart-bd-' + slug;
+  var el = document.getElementById(id);
+  if (!el) return;
+  destroyChart(id);
+  var labels = [], d1 = [], d2 = [], d3 = [];
+  for (var i = 0; i < rows.length; i++) {
+    labels.push(rows[i].editor.split(' ')[0]);
+    d1.push(rows[i].onTime);
+    d2.push(rows[i].clientScore * 10);
+    d3.push(rows[i].compositeScore);
+  }
+  chartInstances[id] = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'On-Time %', data: d1, backgroundColor: '#10B981' },
+        { label: 'Client Score (x10)', data: d2, backgroundColor: '#3B82F6' },
+        { label: 'Composite Score', data: d3, backgroundColor: '#FF212B' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14, font: { family: 'Inter', size: 11 } } } },
+      scales: { y: { min: 0, max: 100, grid: { color: '#F3F4F6' } }, x: { grid: { display: false } } }
+    }
+  });
+}
+
+function buildTMChart(slug, rows) {
+  var id = 'chart-tm-' + slug;
+  var el = document.getElementById(id);
+  if (!el) return;
+  destroyChart(id);
+  var labels = [], d1 = [], d2 = [], d3 = [];
+  for (var i = 0; i < rows.length; i++) {
+    labels.push(rows[i].editor.split(' ')[0]);
+    d1.push(rows[i].editingTime);
+    d2.push(rows[i].revisionFixTime);
+    d3.push(rows[i].idleTime);
+  }
+  chartInstances[id] = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Editing (h)', data: d1, backgroundColor: '#6366F1' },
+        { label: 'Revision Fix (h)', data: d2, backgroundColor: '#F59E0B' },
+        { label: 'Idle (h)', data: d3, backgroundColor: '#EF4444' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 14, font: { family: 'Inter', size: 11 } } } },
+      scales: { y: { grid: { color: '#F3F4F6' } }, x: { grid: { display: false } } }
+    }
+  });
+}
+
+/* ââ Helpers ââ */
+function kpi(label, value, sub, color) {
+  return '<div class="kpi-card ' + color + '"><div class="kpi-label">' + label + '</div><div class="kpi-value">' + value + '</div><div class="kpi-sub">' + sub + '</div></div>';
+}
+function stat(value, label) {
+  return '<div class="stat-item"><div class="stat-value">' + value + '</div><div class="stat-label">' + label + '</div></div>';
+}
+function mbar(label, pct) {
+  var c = pct >= 90 ? '#10B981' : pct >= 75 ? '#3B82F6' : pct >= 60 ? '#F59E0B' : '#EF4444';
+  return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px"><span style="width:90px;color:var(--gray-600)">' + label + '</span>' +
+    '<div class="score-bar" style="flex:1"><div class="score-bar-fill" style="width:' + pct + '%;background:' + c + '"></div></div>' +
+    '<span style="width:36px;text-align:right;font-weight:600">' + pct + '%</span></div>';
+}
+function irow(label, count) {
+  var c = count === 0 ? 'green' : count <= 2 ? 'amber' : 'red';
+  return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px">' +
+    '<span style="color:var(--gray-600)">' + label + '</span>' +
+    '<span class="tag tag-' + c + '">' + count + '</span></div>';
+}
+function tblk(label, value) {
+  return '<div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;text-align:center">' +
+    '<div style="font-size:18px;font-weight:800;color:var(--gray-900)">' + value + '</div>' +
+    '<div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--gray-500);margin-top:4px">' + label + '</div></div>';
+}
+function escH(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+function destroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+/* ââ Navigation ââ */
+function showPage(id) {
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+  var navs = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < navs.length; i++) navs[i].classList.remove('active');
+  var page = document.getElementById('page-' + id);
+  var nav = document.getElementById('nav-' + id);
+  if (page) page.classList.add('active');
+  if (nav) nav.classList.add('active');
+}
+
+/* ââ Init ââ */
+fetchData();
 </script>
 </body>
 </html>
