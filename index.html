@@ -191,7 +191,7 @@ function parseCSVLine(line) {
       } else current += ch;
     } else {
       if (ch === '"') inQuotes = true;
-      else if (ch === ',') { result.push(current); current = ''; }
+      else if (ch === '\t' || ch === ',') { result.push(current); current = ''; }
       else current += ch;
     }
   }
